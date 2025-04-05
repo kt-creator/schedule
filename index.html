@@ -129,14 +129,14 @@
     fields.forEach(field => {
       const textarea = document.getElementById(`textarea-${field}`);
 
-      // Firestoreからデータ取得
-      db.collection("progress").doc(field).get().then(doc => {
-        if (doc.exists) {
+      // Firestoreのリアルタイム監視で即時反映＆保持
+      db.collection("progress").doc(field).onSnapshot(doc => {
+        if (doc.exists && doc.data().text !== textarea.value) {
           textarea.value = doc.data().text || "";
         }
       });
 
-      // 入力ごとにリアルタイム保存
+      // 入力イベントでFirestoreに保存
       textarea.addEventListener("input", () => {
         db.collection("progress").doc(field).set({
           text: textarea.value
