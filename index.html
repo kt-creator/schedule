@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>進捗確認表</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .nav-buttons {
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    .section {
+      margin-bottom: 40px;
+    }
+    textarea {
+      width: 100%;
+      height: 300px;
+      resize: vertical;
+      overflow-y: auto;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    button {
+      padding: 8px 12px;
+      font-size: 14px;
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 40px auto 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>進捗確認表</h1>
+
+  <div class="nav-buttons">
+    <button onclick="scrollToSection('S3')">S3</button>
+    <button onclick="scrollToSection('S2')">S2</button>
+    <button onclick="scrollToSection('S1')">S1</button>
+    <button onclick="scrollToSection('J3')">J3</button>
+    <button onclick="scrollToSection('J2')">J2</button>
+    <button onclick="window.location.href='schedule.jpg'">schedule</button>
+  </div>
+
+  <div id="sections">
+    <div class="section" id="お知らせ">
+      <h2>お知らせ</h2>
+      <textarea id="textarea-お知らせ" placeholder="自由記述"></textarea>
+    </div>
+    <div class="section" id="S3">
+      <h2>S3</h2>
+      <textarea id="textarea-S3" placeholder="自由記述"></textarea>
+    </div>
+    <div class="section" id="S2">
+      <h2>S2</h2>
+      <textarea id="textarea-S2" placeholder="自由記述"></textarea>
+    </div>
+    <div class="section" id="S1">
+      <h2>S1</h2>
+      <textarea id="textarea-S1" placeholder="自由記述"></textarea>
+    </div>
+    <div class="section" id="J3">
+      <h2>J3</h2>
+      <textarea id="textarea-J3" placeholder="自由記述"></textarea>
+    </div>
+    <div class="section" id="J2">
+      <h2>J2</h2>
+      <textarea id="textarea-J2" placeholder="自由記述"></textarea>
+    </div>
+  </div>
+
+  <img src="schedule.jpg" alt="Schedule Image" />
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDRVaScIP3cfu2QmVDUT_k32UVF8a6RB64",
+      authDomain: "notice-51bae.firebaseapp.com",
+      projectId: "notice-51bae",
+      storageBucket: "notice-51bae.firebasestorage.app",
+      messagingSenderId: "728248015881",
+      appId: "1:728248015881:web:8de83057b04ffb62f26cd8"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const fields = ["お知らせ", "S3", "S2", "S1", "J3", "J2"];
+
+    fields.forEach(field => {
+      const textarea = document.getElementById(`textarea-${field}`);
+
+      // Firestoreからデータ取得
+      db.collection("progress").doc(field).get().then(doc => {
+        if (doc.exists) {
+          textarea.value = doc.data().text || "";
+        }
+      });
+
+      // 入力ごとにリアルタイム保存
+      textarea.addEventListener("input", () => {
+        db.collection("progress").doc(field).set({
+          text: textarea.value
+        });
+      });
+    });
+
+    function scrollToSection(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  </script>
+</body>
+</html>
