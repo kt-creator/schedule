@@ -107,11 +107,12 @@
 
   <img src="schedule.jpg" alt="Schedule Image" />
 
-  <!-- Firebase SDK -->
+  <!-- Firebase SDK (互換バージョン使用) -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 
   <script>
+    // Firebase 初期化
     const firebaseConfig = {
       apiKey: "AIzaSyDRVaScIP3cfu2QmVDUT_k32UVF8a6RB64",
       authDomain: "notice-51bae.firebaseapp.com",
@@ -129,14 +130,14 @@
     fields.forEach(field => {
       const textarea = document.getElementById(`textarea-${field}`);
 
-      // Firestoreのリアルタイム監視で即時反映＆保持
+      // Firestoreのリアルタイム同期
       db.collection("progress").doc(field).onSnapshot(doc => {
         if (doc.exists && doc.data().text !== textarea.value) {
           textarea.value = doc.data().text || "";
         }
       });
 
-      // 入力イベントでFirestoreに保存
+      // 入力ごとに保存
       textarea.addEventListener("input", () => {
         db.collection("progress").doc(field).set({
           text: textarea.value
