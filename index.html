@@ -107,52 +107,49 @@
 
   <img src="schedule.jpg" alt="Schedule Image" />
 
-  <!-- Firebase SDK (互換バージョン使用) -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+  <!-- Firebase モジュールSDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
 
-  <script>
-    // Firebase 初期化
     const firebaseConfig = {
-  apiKey: "AIzaSyC_o_8gvqJwHgA4w9nkxiZcp71FaOhc61M",
-  authDomain: "noticeall-e4246.firebaseapp.com",
-  projectId: "noticeall-e4246",
-  storageBucket: "noticeall-e4246.firebasestorage.app",
-  messagingSenderId: "298443638144",
-  appId: "1:298443638144:web:fe0fc1f2d865e93127ed65"
+      apiKey: "AIzaSyC_o_8gvqJwHgA4w9nkxiZcp71FaOhc61M",
+      authDomain: "noticeall-e4246.firebaseapp.com",
+      projectId: "noticeall-e4246",
+      storageBucket: "noticeall-e4246.firebasestorage.app",
+      messagingSenderId: "298443638144",
+      appId: "1:298443638144:web:fe0fc1f2d865e93127ed65"
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
     const fields = ["お知らせ", "S3", "S2", "S1", "J3", "J2"];
 
     fields.forEach(field => {
       const textarea = document.getElementById(`textarea-${field}`);
+      const ref = doc(db, "progress", field);
 
-      // Firestoreのリアルタイム同期
-      db.collection("progress").doc(field).onSnapshot(doc => {
-        if (doc.exists && doc.data().text !== textarea.value) {
-          textarea.value = doc.data().text || "";
+      // 初期読み込み＋リアルタイム反映
+      onSnapshot(ref, (docSnap) => {
+        if (docSnap.exists() && docSnap.data().text !== textarea.value) {
+          textarea.value = docSnap.data().text || "";
         }
       });
 
-      // 入力ごとに保存
-      textarea.addEventListener("input", () => {
-        db.collection("progress").doc(field).set({
-          text: textarea.value
-        });
+      // 入力時に保存
+      textarea.addEventListener("input", async () => {
+        await setDoc(ref, { text: textarea.value });
       });
     });
 
-    function scrollToSection(id) {
+    // ナビゲーション
+    window.scrollToSection = function(id) {
       const el = document.getElementById(id);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
-      }
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
     }
 
-    function scrollToTop() {
+    window.scrollToTop = function() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   </script>
