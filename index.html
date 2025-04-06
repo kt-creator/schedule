@@ -93,11 +93,11 @@
   <img src="schedule.jpg" alt="Schedule Image" />
 
   <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-    import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+<!-- ✅ このscriptが最新版で正しく動く -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+  import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
-    // Firebase設定
   const firebaseConfig = {
     apiKey: "AIzaSyC_o_8gvqJwHgA4w9nkxiZcp71FaOhc61M",
     authDomain: "noticeall-e4246.firebaseapp.com",
@@ -106,47 +106,48 @@
     storageBucket: "noticeall-e4246.firebasestorage.app",
     messagingSenderId: "298443638144",
     appId: "1:298443638144:web:fe0fc1f2d865e93127ed65"
-    };
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-    const fields = ["お知らせ", "S3", "S2", "S1", "J3", "J2"];
+  const fields = ["お知らせ", "S3", "S2", "S1", "J3", "J2"];
 
-    fields.forEach(field => {
-      const textarea = document.getElementById(`textarea-${field}`);
-      const fieldRef = ref(db, `progress/${field}`);
+  fields.forEach(field => {
+    const textarea = document.getElementById(`textarea-${field}`);
+    const fieldRef = ref(db, `progress/${field}`);
 
-      // 初期表示
-      get(fieldRef).then(snapshot => {
-        if (snapshot.exists()) {
-          textarea.value = snapshot.val();
-        }
-      });
-
-      // リアルタイム同期
-      onValue(fieldRef, snapshot => {
-        const value = snapshot.val() || "";
-        if (document.activeElement !== textarea) {
-          textarea.value = value;
-        }
-      });
-
-      // 入力イベントで保存
-      textarea.addEventListener("input", () => {
-        set(fieldRef, textarea.value);
-      });
+    // 初期読み込み
+    get(fieldRef).then(snapshot => {
+      if (snapshot.exists()) {
+        textarea.value = snapshot.val();
+      }
     });
 
-    // スクロール関数
-    window.scrollToSection = function(id) {
-      const el = document.getElementById(id);
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
-    }
+    // リアルタイム同期
+    onValue(fieldRef, snapshot => {
+      const value = snapshot.val() || "";
+      if (document.activeElement !== textarea) {
+        textarea.value = value;
+      }
+    });
 
-    window.scrollToTop = function() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  </script>
+    // 入力 → 保存
+    textarea.addEventListener("input", () => {
+      set(fieldRef, textarea.value);
+    });
+  });
+
+  // ナビゲーション
+  window.scrollToSection = function(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  window.scrollToTop = function() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
 </body>
 </html>
